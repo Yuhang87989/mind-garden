@@ -2,6 +2,15 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+
+    <script>
+    // 如果是APK本地加载(file://)，自动跳转到GitHub Pages在线版
+    // 这样localStorage可以正常持久化，用户数据不会丢失
+    if (window.location.protocol === 'file:') {
+        window.location.href = 'https://yuhang87989.github.io/mind-garden/';
+    }
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#FF9EB5">
     <meta name="apple-mobile-web-app-capable" content="yes">
