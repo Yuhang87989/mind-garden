@@ -945,7 +945,7 @@
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input-area">
         <textarea class="chat-input" id="chat-input" placeholder="说点什么..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
-        <button class="voice-btn" onclick="startVoice()">🎤</button>
+        <button class="voice-btn" onclick="startVoice()">⌨️</button>
         <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
 </div>
@@ -1668,15 +1668,9 @@ function loadChatHistory() {
 }
 
 function startVoice() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { showToast('您的浏览器不支持语音输入'); return; }
-    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var recognition = new SpeechRecognition();
-    recognition.lang = 'zh-CN';
-    recognition.continuous = false;
-    recognition.onresult = function(event) { var text = event.results[0][0].transcript; document.getElementById('chat-input').value = text; sendMessage(); };
-    recognition.onerror = function() { showToast('语音识别失败，请重试'); };
-    recognition.start();
-    showToast('请说话...');
+    var input = document.getElementById('chat-input');
+    input.focus();
+    showToast('请使用输入法语音输入');
 }
 
 function startBreathing() {
