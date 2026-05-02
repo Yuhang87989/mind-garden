@@ -1,0 +1,22 @@
+{
+  "name": "心灵花园 - 青少年心理支持伙伴",
+  "short_name": "心灵花园",
+  "description": "为青少年提供温暖的心理支持和陪伴",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF5F8",
+  "theme_color": "#FF9EB5",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

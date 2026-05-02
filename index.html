@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF9EB5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="心灵花园">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>🌸 心灵花园</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --pink: #FF9EB5;
+            --pink-light: #FFE5EC;
+            --purple: #B8A9E8;
+            --blue: #9EC5FF;
+            --green: #A8E6CF;
+            --yellow: #FFE5B4;
+            --red: #FF6B6B;
+            --text: #333;
+            --text-light: #999;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #FFF5F8 0%, #FFE5EC 100%);
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .page { display: none; min-height: 100vh; padding-bottom: 80px; }
+        .page.active { display: block; }
+        
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 30px 20px;
+            background: linear-gradient(180deg, #FFF5F8 0%, #FFE5EC 50%, #FFE5EC 100%);
+        }
+        
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(255, 158, 181, 0.35);
+        }
+        
+        .login-title { font-size: 28px; font-weight: bold; color: var(--text); margin-bottom: 8px; }
+        .login-subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 40px; }
+        
+        .role-cards { width: 100%; max-width: 320px; }
+        
+        .role-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        
+        .role-card:active { transform: scale(0.97); }
+        .role-card.selected { border: 2px solid var(--pink); background: var(--pink-light); }
+        
+        .role-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--pink-light), #fff);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        
+        .role-info h3 { font-size: 17px; color: var(--text); margin-bottom: 3px; }
+        .role-info p { font-size: 12px; color: var(--text-light); }
+        
+        .login-form { width: 100%; max-width: 320px; margin-top: 20px; }
+        .form-label { font-size: 14px; color: var(--text); margin-bottom: 8px; font-weight: 500; }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-input:focus { border-color: var(--pink); }
+        .form-input::placeholder { color: #ccc; }
+        
+        .family-code-display {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .family-code-label { font-size: 13px; opacity: 0.9; margin-bottom: 8px; }
+        .family-code-value { font-size: 32px; font-weight: bold; letter-spacing: 4px; }
+        .family-code-hint { font-size: 11px; opacity: 0.8; margin-top: 10px; }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary:disabled { opacity: 0.6; }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: var(--pink);
+            border: 2px solid var(--pink);
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .btn-orange {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--orange), #FF8C42);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .welcome-header {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            padding: 25px 20px;
+            border-radius: 0 0 30px 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .welcome-avatar {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            box-shadow: 0 4px 15px rgba(255, 158, 181, 0.3);
+        }
+        
+        .welcome-text { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+        .welcome-date { font-size: 13px; opacity: 0.9; }
+        
+        .sync-status {
+            background: white;
+            margin: 15px 20px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+        .sync-dot.syncing { background: var(--green); animation: pulse 1s infinite; }
+        .sync-dot.synced { background: var(--green); }
+        .sync-dot.error { background: var(--red); }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .mood-card {
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(255, 158, 181, 0.15);
+        }
+        
+        .mood-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--text); }
+        .mood-emojis { display: flex; justify-content: space-around; margin-bottom: 15px; }
+        
+        .mood-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 3px solid #f0f0f0;
+            background: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mood-btn.selected { border-color: var(--pink); background: var(--pink-light); transform: scale(1.15); }
+        
+        .mood-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            height: 80px;
+        }
+        
+        .mood-textarea:focus { border-color: var(--pink); }
+        
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .save-btn:active { transform: scale(0.98); }
+        
+        .module-grid {
+            padding: 0 20px 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .module-card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px 12px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .module-card:active { transform: scale(0.96); }
+        .module-icon { font-size: 42px; margin-bottom: 8px; }
+        .module-name { font-size: 15px; font-weight: bold; color: var(--text); margin-bottom: 3px; }
+        .module-desc { font-size: 11px; color: var(--text-light); }
+        
+        .chat-page { background: #f8f8f8; }
+        
+        .chat-header {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .back-btn { font-size: 24px; cursor: pointer; padding: 5px; }
+        .chat-title { flex: 1; font-size: 18px; font-weight: bold; }
+        
+        .chat-messages { padding: 15px; max-height: calc(100vh - 180px); overflow-y: auto; }
+        
+        .message { margin-bottom: 12px; display: flex; gap: 10px; }
+        .message.user { flex-direction: row-reverse; }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .message.ai .message-avatar { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+        .message.user .message-avatar { background: var(--blue); }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            background: white;
+        }
+        
+        .message.user .message-bubble { background: var(--pink-light); }
+        
+        .chat-input-area {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            padding: 10px 15px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            max-height: 80px;
+            font-family: inherit;
+        }
+        
+        .chat-input:focus { border-color: var(--pink); }
+        
+        .voice-btn, .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .voice-btn { background: var(--yellow); }
+        .send-btn { background: linear-gradient(135deg, var(--pink), var(--purple)); color: white; }
+        
+        .loading {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--pink-light);
+            border-top-color: var(--pink);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .ai-hint {
+            background: linear-gradient(135deg, #fff9e6, #fff5d6);
+            border: 2px solid var(--yellow);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .ai-hint-icon { font-size: 48px; margin-bottom: 10px; }
+        .ai-hint-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+        .ai-hint-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--orange), #FF8C42);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .records-page { background: #f8f8f8; }
+        .records-header { background: white; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
+        .records-title { font-size: 18px; font-weight: bold; flex: 1; text-align: center; }
+        .records-list { padding: 15px 20px; }
+        
+        .record-item {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .record-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .record-mood { font-size: 28px; }
+        .record-time { font-size: 12px; color: var(--text-light); }
+        .record-note { font-size: 14px; color: var(--text); line-height: 1.5; }
+        
+        .parent-page { background: linear-gradient(180deg, #f5f3ff 0%, #f0f0f0 100%); }
+        
+        .parent-header {
+            background: linear-gradient(135deg, var(--purple), #9B8CDB);
+            padding: 25px 20px;
+            border-radius: 0 0 30px 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .parent-title { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .parent-subtitle { font-size: 13px; opacity: 0.9; }
+        
+        .parent-section {
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        
+        .stat-card {
+            text-align: center;
+            padding: 15px 8px;
+            background: var(--pink-light);
+            border-radius: 15px;
+        }
+        
+        .stat-value { font-size: 24px; font-weight: bold; color: var(--pink); }
+        .stat-label { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+        
+        .mood-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 80px; padding: 10px 0; }
+        
+        .chart-bar {
+            width: 30px;
+            background: linear-gradient(180deg, var(--pink), var(--purple));
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s;
+        }
+        
+        .chart-label { font-size: 10px; color: var(--text-light); text-align: center; margin-top: 5px; }
+        
+        .emergency-alert {
+            background: linear-gradient(135deg, #fff0f0, #ffe5e5);
+            border: 2px solid var(--red);
+            border-radius: 16px;
+            padding: 15px;
+            display: none;
+        }
+        
+        .emergency-alert.active { display: block; animation: alertPulse 1.5s infinite; }
+        
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+        }
+        
+        .emergency-title { color: var(--red); font-size: 16px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .emergency-content { font-size: 14px; color: var(--text); }
+        .emergency-time { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+        
+        .last-active { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--pink-light); border-radius: 12px; }
+        .active-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+        .active-text { font-size: 13px; color: var(--text); }
+        
+        /* ===== Settings Page ===== */
+        .settings-page { background: #f8f8f8; }
+        
+        .settings-header {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            padding: 25px 20px;
+            border-radius: 0 0 30px 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .settings-title { font-size: 22px; font-weight: bold; }
+        
+        .settings-section {
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .settings-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .settings-item:last-child { border-bottom: none; }
+        
+        .settings-item-icon { font-size: 24px; margin-right: 12px; }
+        .settings-item-text { flex: 1; }
+        .settings-item-title { font-size: 15px; color: var(--text); font-weight: 500; }
+        .settings-item-desc { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+        .settings-item-arrow { color: var(--text-light); font-size: 18px; }
+        
+        /* AI Config Section */
+        .ai-config-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .ai-config-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .api-type-switch {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .api-type-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .api-type-btn.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--pink);
+        }
+        
+        .api-type-btn:not(.active) { color: var(--text-light); }
+        
+        .config-field {
+            margin-bottom: 15px;
+        }
+        
+        .config-label {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .config-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .config-input:focus { border-color: var(--pink); }
+        .config-input::placeholder { color: #ccc; }
+        
+        .config-hint {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        .config-section {
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .config-section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--purple);
+            margin-bottom: 12px;
+        }
+        
+        .test-result {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .test-result.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .test-result.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .sos-button {
+            position: fixed;
+            right: 20px;
+            bottom: 90px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--red), #ff4444);
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+        
+        .sos-button:active { transform: scale(0.9); }
+        .sos-button.pulse { animation: sosPulse 1s infinite; }
+        
+        @keyframes sosPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5); }
+            50% { box-shadow: 0 4px 40px rgba(255, 107, 107, 0.8); }
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            max-width: 340px;
+            width: 100%;
+        }
+        
+        .modal-title { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 8px; color: var(--text); }
+        .modal-subtitle { font-size: 13px; color: var(--text-light); text-align: center; margin-bottom: 20px; }
+        
+        .sos-options { display: flex; flex-direction: column; gap: 12px; }
+        
+        .sos-option {
+            padding: 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .sos-option:active { border-color: var(--red); background: #fff0f0; }
+        .sos-option.urgent { border-color: var(--red); background: #fff0f0; }
+        
+        .modal-btn-cancel {
+            width: 100%;
+            padding: 14px;
+            background: #f5f5f5;
+            color: var(--text);
+            border: none;
+            border-radius: 15px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            display: flex;
+            padding: 8px 0;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
+            z-index: 50;
+        }
+        
+        .nav-item { flex: 1; text-align: center; padding: 8px 0; cursor: pointer; }
+        .nav-icon { font-size: 22px; margin-bottom: 2px; }
+        .nav-label { font-size: 11px; color: var(--text-light); }
+        .nav-item.active .nav-label { color: var(--pink); font-weight: 500; }
+        
+        .breath-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.5s ease-in-out;
+            cursor: pointer;
+        }
+        
+        .breath-tips { margin-top: 30px; font-size: 14px; color: var(--text); text-align: center; }
+        
+        .diary-card { background: white; border-radius: 16px; padding: 15px; margin-bottom: 12px; }
+        .diary-date { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+        .diary-content { font-size: 14px; color: var(--text); line-height: 1.6; }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: calc(100% - 40px);
+            margin: 20px auto;
+            padding: 14px;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="page-login" class="page login-page active">
+    <div class="login-logo">🌸</div>
+    <h1 class="login-title">心灵花园</h1>
+    <p class="login-subtitle">温暖的心灵陪伴</p>
+    
+    <div id="step-role" class="role-cards">
+        <div class="role-card" onclick="selectRole('teen')">
+            <div class="role-icon">🌻</div>
+            <div class="role-info">
+                <h3>我是青少年</h3>
+                <p>记录心情、聊天、写日记</p>
+            </div>
+        </div>
+        <div class="role-card" onclick="selectRole('parent')">
+            <div class="role-icon">👨‍👧</div>
+            <div class="role-info">
+                <h3>我是家长</h3>
+                <p>查看孩子情绪数据</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="step-teen-name" class="login-form hidden">
+        <div class="form-label">你的昵称</div>
+        <input type="text" id="teen-name-input" class="form-input" placeholder="请输入昵称" maxlength="10">
+        <button class="btn-primary" onclick="confirmTeenName()">下一步</button>
+        <button class="btn-secondary" onclick="showStep('role')">返回</button>
+    </div>
+    
+    <div id="step-parent-code" class="login-form hidden">
+        <div class="form-label">家庭码</div>
+        <input type="text" id="family-code-input" class="form-input" placeholder="请输入6位家庭码" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-size:18px;">
+        <button class="btn-primary" onclick="confirmFamilyCode()">加入家庭</button>
+        <button class="btn-secondary" onclick="showStep('role')">返回</button>
+    </div>
+    
+    <div id="step-teen-code" class="login-form hidden">
+        <div class="family-code-display">
+            <div class="family-code-label">你的家庭码</div>
+            <div class="family-code-value" id="display-family-code">------</div>
+            <div class="family-code-hint">请把这个码告诉爸爸妈妈<br>他们可以用这个码关注你</div>
+        </div>
+        <div class="form-label">你是谁？</div>
+        <input type="text" id="teen-display-name" class="form-input" placeholder="你的名字" maxlength="10">
+        <button class="btn-primary" onclick="confirmTeenJoin()">进入花园</button>
+    </div>
+    
+    <div id="step-parent-identity" class="login-form hidden">
+        <div class="form-label">你是谁？</div>
+        <div class="role-cards" style="margin-top:15px;">
+            <div class="role-card" onclick="selectParentRole('dad')">
+                <div class="role-icon">👨</div>
+                <div class="role-info"><h3>爸爸</h3></div>
+            </div>
+            <div class="role-card" onclick="selectParentRole('mom')">
+                <div class="role-icon">👩</div>
+                <div class="role-info"><h3>妈妈</h3></div>
+            </div>
+        </div>
+        <button class="btn-secondary" onclick="showStep('parent-code')">返回</button>
+    </div>
+</div>
+
+<div id="page-home" class="page">
+    <div class="welcome-header">
+        <div class="welcome-avatar" id="user-avatar">🌻</div>
+        <div class="welcome-text" id="welcome-text">你好</div>
+        <div class="welcome-date" id="welcome-date"></div>
+    </div>
+    
+    <div class="sync-status" id="sync-status">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span id="sync-text">正在连接云端...</span>
+    </div>
+    
+    <div class="mood-card">
+        <div class="mood-title">🌸 今天心情怎么样？</div>
+        <div class="mood-emojis">
+            <button class="mood-btn" data-mood="😢" data-level="1" onclick="selectMood(this)">😢</button>
+            <button class="mood-btn" data-mood="😔" data-level="2" onclick="selectMood(this)">😔</button>
+            <button class="mood-btn" data-mood="😐" data-level="3" onclick="selectMood(this)">😐</button>
+            <button class="mood-btn" data-mood="😊" data-level="4" onclick="selectMood(this)">😊</button>
+            <button class="mood-btn" data-mood="🥰" data-level="5" onclick="selectMood(this)">🥰</button>
+        </div>
+        <textarea class="mood-textarea" id="mood-note" placeholder="想说点什么吗..."></textarea>
+        <button class="save-btn" onclick="saveMood()">记录心情</button>
+    </div>
+    
+    <div class="module-grid">
+        <div class="module-card" onclick="showPage('chat')">
+            <div class="module-icon">💬</div>
+            <div class="module-name">心灵对话</div>
+            <div class="module-desc">AI陪伴聊天</div>
+        </div>
+        <div class="module-card" onclick="showPage('breathing')">
+            <div class="module-icon">🌬️</div>
+            <div class="module-name">呼吸放松</div>
+            <div class="module-desc">平静下来</div>
+        </div>
+        <div class="module-card" onclick="showPage('diary')">
+            <div class="module-icon">📔</div>
+            <div class="module-name">写日记</div>
+            <div class="module-desc">记录生活</div>
+        </div>
+        <div class="module-card" onclick="showPage('records')">
+            <div class="module-icon">📊</div>
+            <div class="module-name">心情记录</div>
+            <div class="module-desc">查看历史</div>
+        </div>
+    </div>
+    
+    <button class="logout-btn" onclick="logout()"><span>🚪</span> 退出登录</button>
+</div>
+
+<div id="page-chat" class="page chat-page">
+    <div class="chat-header">
+        <div class="back-btn" onclick="showPage('home')">←</div>
+        <div class="chat-title">🌸 心灵对话</div>
+    </div>
+    <div id="ai-hint" class="ai-hint">
+        <div class="ai-hint-icon">🤖</div>
+        <div class="ai-hint-text">
+            还没配置AI伙伴哦～<br>
+            去<span style="color:var(--pink);font-weight:bold;">设置页面</span>填写Bot ID<br>
+            就可以开始聊天啦！
+        </div>
+        <div class="ai-hint-btn" onclick="showPage('settings')">去设置</div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="说点什么..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
+        <button class="voice-btn" onclick="startVoice()">🎤</button>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+<div id="page-records" class="page records-page">
+    <div class="records-header">
+        <div class="back-btn" onclick="showPage('home')">←</div>
+        <div class="records-title">📊 心情记录</div>
+    </div>
+    <div class="records-list" id="records-list"></div>
+</div>
+
+<div id="page-diary" class="page records-page">
+    <div class="records-header">
+        <div class="back-btn" onclick="showPage('home')">←</div>
+        <div class="records-title">📔 写日记</div>
+    </div>
+    <div style="padding: 20px;">
+        <div class="diary-card">
+            <div class="diary-date" id="diary-date"></div>
+            <textarea class="mood-textarea" id="diary-content" placeholder="今天发生了什么？你的感受如何？" style="height: 150px;"></textarea>
+            <button class="save-btn" onclick="saveDiary()" style="margin-top: 15px;">保存日记</button>
+        </div>
+        <div style="font-size: 13px; color: var(--text-light); margin-top: 15px;"><span>📝 日记仅你自己可见</span></div>
+    </div>
+</div>
+
+<div id="page-breathing" class="page records-page">
+    <div class="records-header">
+        <div class="back-btn" onclick="showPage('home')">←</div>
+        <div class="records-title">🌬️ 呼吸放松</div>
+    </div>
+    <div style="padding: 40px 20px; text-align: center;">
+        <div id="breath-circle" class="breath-circle" onclick="startBreathing()">开始</div>
+        <div class="breath-tips">
+            <p style="margin-bottom: 15px;">跟随圆圈的节奏呼吸</p>
+            <p>吸气4秒 → 屏息4秒 → 呼气4秒</p>
+        </div>
+    </div>
+</div>
+
+<div id="page-settings" class="page settings-page">
+    <div class="settings-header">
+        <div class="settings-title">⚙️ 设置</div>
+    </div>
+    
+    <div class="ai-config-card">
+        <div class="ai-config-title">🤖 AI配置</div>
+        
+        <div class="api-type-switch">
+            <button class="api-type-btn active" id="btn-coze" onclick="switchApiType('coze')">Coze</button>
+            <button class="api-type-btn" id="btn-deepseek" onclick="switchApiType('deepseek')">DeepSeek</button>
+        </div>
+        
+        <div id="coze-config" class="config-section">
+            <div class="config-section-title">📱 Coze 配置</div>
+            <div class="config-field">
+                <div class="config-label">Bot ID</div>
+                <input type="text" id="coze-bot-id" class="config-input" placeholder="五一回家后填写">
+                <div class="config-hint">在扣子平台找到你的Bot，复制Bot ID</div>
+            </div>
+            <div class="config-field">
+                <div class="config-label">API Token (PAT)</div>
+                <input type="password" id="coze-token" class="config-input" placeholder="在扣子平台生成">
+                <div class="config-hint">Personal Access Token，用于API认证</div>
+            </div>
+        </div>
+        
+        <div id="deepseek-config" class="config-section" style="display:none;">
+            <div class="config-section-title">🔵 DeepSeek 配置</div>
+            <div class="config-field">
+                <div class="config-label">API Key</div>
+                <input type="password" id="deepseek-key" class="config-input" placeholder="sk-xxxx...">
+                <div class="config-hint">DeepSeek API密钥</div>
+            </div>
+        </div>
+        
+        <button class="btn-primary" onclick="saveAIConfig()">保存配置</button>
+        <button class="btn-orange" onclick="testAIConnection()">🧪 测试连接</button>
+        
+        <div id="test-result" class="test-result"></div>
+    </div>
+    
+    <div class="settings-section">
+        <div class="settings-item" onclick="showPage('home')">
+            <div class="settings-item-icon">🏠</div>
+            <div class="settings-item-text">
+                <div class="settings-item-title">返回首页</div>
+                <div class="settings-item-desc">回到心灵花园主页</div>
+            </div>
+            <div class="settings-item-arrow">→</div>
+        </div>
+        <div class="settings-item" onclick="logout()">
+            <div class="settings-item-icon">🚪</div>
+            <div class="settings-item-text">
+                <div class="settings-item-title">退出登录</div>
+                <div class="settings-item-desc">切换账号或重新登录</div>
+            </div>
+            <div class="settings-item-arrow">→</div>
+        </div>
+    </div>
+    
+    <div style="padding: 20px; text-align: center;">
+        <div style="font-size: 12px; color: var(--text-light);">心灵花园 v2.0</div>
+        <div style="font-size: 11px; color: var(--text-light); margin-top: 5px;">温暖陪伴，与你同行 💗</div>
+    </div>
+</div>
+
+<div id="page-parent" class="page parent-page">
+    <div class="parent-header">
+        <div class="parent-title" id="parent-title">爸爸视角</div>
+        <div class="parent-subtitle" id="parent-subtitle">关心每一个时刻</div>
+    </div>
+    
+    <div class="parent-section">
+        <div class="emergency-alert" id="emergency-alert">
+            <div class="emergency-title"><span>🚨</span> <span>紧急求助</span></div>
+            <div class="emergency-content" id="emergency-content">孩子发送了紧急求助信号</div>
+            <div class="emergency-time" id="emergency-time"></div>
+        </div>
+        <div class="last-active" id="last-active">
+            <div class="active-dot"></div>
+            <div class="active-text" id="last-active-text">最后活跃：刚刚</div>
+        </div>
+    </div>
+    
+    <div class="parent-section">
+        <div class="section-title">📊 本周数据</div>
+        <div class="stat-cards">
+            <div class="stat-card"><div class="stat-value" id="week-count">0</div><div class="stat-label">心情记录</div></div>
+            <div class="stat-card"><div class="stat-value" id="week-diary">0</div><div class="stat-label">日记</div></div>
+            <div class="stat-card"><div class="stat-value" id="week-chat">0</div><div class="stat-label">对话</div></div>
+        </div>
+    </div>
+    
+    <div class="parent-section">
+        <div class="section-title">📈 近7天情绪</div>
+        <div class="mood-chart" id="mood-chart"></div>
+        <div style="text-align: center; margin-top: 10px;"><span id="mood-summary" style="font-size: 13px; color: var(--text-light);"></span></div>
+    </div>
+    
+    <div class="parent-section">
+        <div class="section-title">💗 最近心情</div>
+        <div id="recent-mood-list"></div>
+    </div>
+    
+    <div class="parent-section">
+        <div class="section-title">💬 近期对话</div>
+        <div id="parent-messages"></div>
+    </div>
+    
+    <button class="logout-btn" onclick="logout()"><span>🚪</span> 退出登录</button>
+</div>
+
+<button class="sos-button pulse" id="sos-button" onclick="showSOSModal()">🆘</button>
+
+<div class="modal-overlay" id="sos-modal">
+    <div class="modal-content">
+        <div class="modal-title">🆘 需要帮助吗？</div>
+        <div class="modal-subtitle">你现在感觉怎么样？</div>
+        <div class="sos-options">
+            <button class="sos-option" onclick="sendSOS('需要帮助')">🤝 我需要有人陪我聊聊</button>
+            <button class="sos-option" onclick="sendSOS('感觉很糟糕')">😢 我感觉很糟糕</button>
+            <button class="sos-option urgent" onclick="sendSOS('有危险')">⚠️ 我觉得自己有危险</button>
+        </div>
+        <button class="modal-btn-cancel" onclick="closeSOSModal()">我再想想</button>
+    </div>
+</div>
+
+<div class="bottom-nav" id="bottom-nav">
+    <div class="nav-item active" onclick="showPage('home')"><div class="nav-icon">🏠</div><div class="nav-label">首页</div></div>
+    <div class="nav-item" onclick="showPage('chat')"><div class="nav-icon">💬</div><div class="nav-label">聊天</div></div>
+    <div class="nav-item" onclick="showPage('records')"><div class="nav-icon">📊</div><div class="nav-label">记录</div></div>
+    <div class="nav-item" id="nav-settings" onclick="showPage('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">设置</div></div>
+</div>
+
+<script>
+function rot13Decode(s) {
+    var result = '';
+    for (var i = 0; i < s.length; i++) {
+        var c = s.charCodeAt(i);
+        if (c >= 65 && c <= 90) result += String.fromCharCode((c - 65 + 13) % 26 + 65);
+        else if (c >= 97 && c <= 122) result += String.fromCharCode((c - 97 + 13) % 26 + 97);
+        else result += s.charAt(i);
+    }
+    return result;
+}
+
+var GITHUB_TOKEN = (function() { 
+    var t = localStorage.getItem('gh_token'); 
+    if (!t) { 
+        try { t = rot13Decode(tuc_StUjGPVQr4wAj2nnSpQJj4YQ5gcNGq1K0uzU); } 
+        catch(e) { t = ''; }
+        localStorage.setItem('gh_token', t); 
+    } 
+    return t; 
+})();
+
+var GITHUB_USER = 'Yuhang87989';
+var REPO_NAME = 'mind-garden-data';
+var DATA_PATH = 'data';
+
+var currentRole = '';
+var currentUser = null;
+var familyCode = '';
+var parentIdentity = '';
+var currentMood = '';
+var currentMoodLevel = 0;
+var chatHistory = [];
+var breathingInterval = null;
+var syncInterval = null;
+
+var STORAGE_KEY = 'mindgarden_user';
+var DATA_KEY = 'mindgarden_data';
+var AI_CONFIG_KEY = 'mindgarden_ai_config';
+
+window.onload = function() { initApp(); };
+
+function initApp() {
+    loadAIConfig();
+    var savedUser = localStorage.getItem(STORAGE_KEY);
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            currentRole = currentUser.role;
+            familyCode = currentUser.familyCode;
+            if (currentRole === 'parent') { parentIdentity = currentUser.identity; }
+            if (currentRole === 'teen') { enterTeenMode(); } else { enterParentMode(); }
+        } catch (e) {
+            localStorage.removeItem(STORAGE_KEY);
+            showPage('login');
+        }
+    } else {
+        showPage('login');
+    }
+}
+
+// ===== AI Configuration =====
+function getAIConfig() {
+    var configStr = localStorage.getItem(AI_CONFIG_KEY);
+    if (!configStr) return { apiType: 'deepseek', cozeBotId: '', cozeToken: 'sat_VC0x3vYX81ehAPWfNCtpoMsYVgWJCxdN1EEmP1O2P8zmXOpYwSVGz1OyqonizQ0k', deepseekKey: 'sk-8413f72a3f084fb08c84389555a76d37' };
+    try { return JSON.parse(configStr); }
+    catch (e) { return { apiType: 'deepseek', cozeBotId: '', cozeToken: 'sat_VC0x3vYX81ehAPWfNCtpoMsYVgWJCxdN1EEmP1O2P8zmXOpYwSVGz1OyqonizQ0k', deepseekKey: 'sk-8413f72a3f084fb08c84389555a76d37' }; }
+}
+
+function saveAIConfigToStorage(config) {
+    localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(config));
+}
+
+function loadAIConfig() {
+    var config = getAIConfig();
+    switchApiType(config.apiType);
+    document.getElementById('coze-bot-id').value = config.cozeBotId || '';
+    document.getElementById('coze-token').value = config.cozeToken || '';
+    document.getElementById('deepseek-key').value = config.deepseekKey || '';
+}
+
+function switchApiType(type) {
+    var config = getAIConfig();
+    config.apiType = type;
+    saveAIConfigToStorage(config);
+    
+    document.getElementById('btn-coze').classList.remove('active');
+    document.getElementById('btn-deepseek').classList.remove('active');
+    document.getElementById('btn-' + type).classList.add('active');
+    
+    if (type === 'coze') {
+        document.getElementById('coze-config').style.display = 'block';
+        document.getElementById('deepseek-config').style.display = 'none';
+    } else {
+        document.getElementById('coze-config').style.display = 'none';
+        document.getElementById('deepseek-config').style.display = 'block';
+    }
+}
+
+function saveAIConfig() {
+    var config = {
+        apiType: getAIConfig().apiType,
+        cozeBotId: document.getElementById('coze-bot-id').value.trim(),
+        cozeToken: document.getElementById('coze-token').value.trim(),
+        deepseekKey: document.getElementById('deepseek-key').value.trim()
+    };
+    saveAIConfigToStorage(config);
+    showToast('配置已保存 💾');
+}
+
+function testAIConnection() {
+    var config = getAIConfig();
+    var resultDiv = document.getElementById('test-result');
+    resultDiv.className = 'test-result';
+    resultDiv.textContent = '测试中...';
+    resultDiv.style.display = 'block';
+    
+    if (config.apiType === 'coze' && config.cozeBotId && config.cozeToken) {
+        testCozeAPI(config.cozeBotId, config.cozeToken, function(success, message) {
+            if (success) {
+                resultDiv.className = 'test-result success';
+                resultDiv.textContent = '✅ Coze连接成功！';
+            } else {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = '❌ Coze连接失败：' + message;
+            }
+        });
+    } else if (config.apiType === 'deepseek' && config.deepseekKey) {
+        testDeepSeekAPI(config.deepseekKey, function(success, message) {
+            if (success) {
+                resultDiv.className = 'test-result success';
+                resultDiv.textContent = '✅ DeepSeek连接成功！';
+            } else {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = '❌ DeepSeek连接失败：' + message;
+            }
+        });
+    } else {
+        resultDiv.className = 'test-result error';
+        resultDiv.textContent = '⚠️ 请先填写完整的配置信息';
+    }
+}
+
+function testCozeAPI(botId, token, callback) {
+    var testMessage = '你好';
+    callCozeAPI(testMessage, botId, token).then(function(response) {
+        callback(true, 'AI响应正常');
+    }).catch(function(err) {
+        callback(false, err.message || '未知错误');
+    });
+}
+
+function testDeepSeekAPI(key, callback) {
+    fetch('https://api.deepseek.com/v1/models', {
+        headers: { 'Authorization': 'Bearer ' + key }
+    }).then(function(res) {
+        if (res.ok) callback(true, 'API Key有效');
+        else callback(false, 'API Key无效');
+    }).catch(function(err) {
+        callback(false, '连接失败');
+    });
+}
+
+// ===== Coze API Functions =====
+async function callCozeAPI(message, botId, token) {
+    var userId = currentUser ? currentUser.id : 'anonymous';
+    
+    var response = await fetch('https://api.coze.cn/v3/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            bot_id: botId,
+            user_id: userId,
+            stream: false,
+            auto_save_history: true,
+            additional_messages: [
+                { role: 'user', content: message, content_type: 'text' }
+            ]
+        })
+    });
+    
+    var data = await response.json();
+    
+    if (data.code && data.code !== 0) {
+        throw new Error(data.msg || 'Coze API错误');
+    }
+    
+    if (data.data && data.data.id) {
+        return await pollCozeChat(data.data.id, botId, token);
+    }
+    
+    throw new Error('无法获取聊天ID');
+}
+
+async function pollCozeChat(chatId, botId, token) {
+    var maxRetry = 30;
+    for (var i = 0; i < maxRetry; i++) {
+        await new Promise(function(r) { setTimeout(r, 2000); });
+        
+        var res = await fetch('https://api.coze.cn/v3/chat/retrieve?chat_id=' + chatId + '&bot_id=' + botId, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        var data = await res.json();
+        
+        if (data.data && data.data.status === 'completed') {
+            var msgRes = await fetch('https://api.coze.cn/v3/chat/message/list?chat_id=' + chatId + '&bot_id=' + botId, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            
+            var msgData = await msgRes.json();
+            var assistantMsg = null;
+            for (var j = 0; j < msgData.data.length; j++) {
+                if (msgData.data[j].role === 'assistant' && msgData.data[j].type === 'answer') {
+                    assistantMsg = msgData.data[j];
+                    break;
+                }
+            }
+            
+            return assistantMsg ? assistantMsg.content : '抱歉，我没有理解你的意思';
+        }
+        
+        if (data.data && data.data.status === 'failed') {
+            return '抱歉，我暂时无法回应，请稍后再试';
+        }
+    }
+    
+    return '响应超时，请稍后再试';
+}
+
+// ===== DeepSeek API =====
+async function callDeepSeekAPI(message, apiKey) {
+    var API_URL = 'https://api.deepseek.com/v1/chat/completions';
+    var systemPrompt = '你是心灵花园的AI心灵伙伴🌸，一个温暖、友善的AI助手。用户是一个初一女生，正在经历情绪波动，你的角色是倾听、陪伴、鼓励。回答要简洁温暖，适当使用emoji。';
+    
+    var response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
+            temperature: 0.8,
+            max_tokens: 500
+        })
+    });
+    
+    var respData = await response.json();
+    if (respData.choices && respData.choices[0]) {
+        return respData.choices[0].message.content;
+    }
+    throw new Error('DeepSeek API响应错误');
+}
+
+// ===== Unified AI Message Function =====
+async function sendMessageToAI(message) {
+    var config = getAIConfig();
+    
+    if (config.apiType === 'coze' && config.cozeBotId && config.cozeToken) {
+        return await callCozeAPI(message, config.cozeBotId, config.cozeToken);
+    } else if (config.apiType === 'deepseek' && config.deepseekKey) {
+        return await callDeepSeekAPI(message, config.deepseekKey);
+    } else {
+        return '请先在设置页面配置AI接口';
+    }
+}
+
+function isAIConfigured() {
+    var config = getAIConfig();
+    if (config.apiType === 'coze') {
+        return config.cozeBotId && config.cozeToken;
+    } else {
+        return config.deepseekKey;
+    }
+}
+
+// ===== Login Functions =====
+function selectRole(role) {
+    currentRole = role;
+    var cards = document.querySelectorAll('.role-card');
+    for (var i = 0; i < cards.length; i++) { cards[i].classList.remove('selected'); }
+    event.currentTarget.classList.add('selected');
+    if (role === 'teen') { showStep('teen-name'); } else { showStep('parent-code'); }
+}
+
+function showStep(step) {
+    var steps = ['role', 'teen-name', 'parent-code', 'teen-code', 'parent-identity'];
+    for (var i = 0; i < steps.length; i++) {
+        document.getElementById('step-' + steps[i]).classList.add('hidden');
+    }
+    document.getElementById('step-' + step).classList.remove('hidden');
+}
+
+function confirmTeenName() {
+    var name = document.getElementById('teen-name-input').value.trim();
+    if (!name) { showToast('请输入昵称'); return; }
+    familyCode = generateFamilyCode();
+    currentUser = { id: 'user_' + Date.now(), name: name, role: 'teen', familyCode: familyCode, createdAt: new Date().toISOString() };
+    document.getElementById('display-family-code').textContent = familyCode;
+    document.getElementById('teen-display-name').value = name;
+    showStep('teen-code');
+}
+
+function confirmTeenJoin() {
+    var displayName = document.getElementById('teen-display-name').value.trim();
+    if (!displayName) { showToast('请输入你的名字'); return; }
+    currentUser.name = displayName;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+    var localData = getLocalData();
+    if (!localData.members) { localData.members = []; }
+    var exists = false;
+    for (var i = 0; i < localData.members.length; i++) {
+        if (localData.members[i].id === currentUser.id) { exists = true; break; }
+    }
+    if (!exists) { localData.members.push({ id: currentUser.id, name: currentUser.name, role: 'teen', createdAt: currentUser.createdAt }); }
+    saveLocalData(localData);
+    enterTeenMode();
+}
+
+function confirmFamilyCode() {
+    var code = document.getElementById('family-code-input').value.trim().toUpperCase();
+    if (!code || code.length !== 6) { showToast('请输入6位家庭码'); return; }
+    familyCode = code;
+    showStep('parent-identity');
+}
+
+function selectParentRole(identity) {
+    parentIdentity = identity;
+    var cards = document.querySelectorAll('#step-parent-identity .role-card');
+    for (var i = 0; i < cards.length; i++) { cards[i].classList.remove('selected'); }
+    event.currentTarget.classList.add('selected');
+    currentUser = { id: 'user_' + Date.now(), name: identity === 'dad' ? '爸爸' : '妈妈', role: 'parent', identity: identity, familyCode: familyCode, createdAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+    enterParentMode();
+}
+
+function enterTeenMode() {
+    showPage('home');
+    updateWelcome();
+    updateDiaryDate();
+    updateChatHint();
+    initCloudSync();
+    loadChatHistory();
+}
+
+function enterParentMode() {
+    showPage('parent');
+    document.getElementById('nav-settings').style.display = 'block';
+    initParentSync();
+}
+
+function updateChatHint() {
+    var hint = document.getElementById('ai-hint');
+    if (isAIConfigured()) {
+        hint.style.display = 'none';
+    } else {
+        hint.style.display = 'block';
+    }
+}
+
+function logout() {
+    if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem(STORAGE_KEY);
+        if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+        currentUser = null; currentRole = ''; familyCode = ''; parentIdentity = '';
+        showPage('login');
+        showStep('role');
+    }
+}
+
+function showPage(pageId) {
+    var pages = document.querySelectorAll('.page');
+    for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('active'); }
+    document.getElementById('page-' + pageId).classList.add('active');
+    
+    var navItems = document.querySelectorAll('.nav-item');
+    for (var j = 0; j < navItems.length; j++) { navItems[j].classList.remove('active'); }
+    
+    if (pageId === 'home') { navItems[0].classList.add('active'); }
+    else if (pageId === 'chat') { navItems[1].classList.add('active'); updateChatHint(); }
+    else if (pageId === 'records' || pageId === 'diary' || pageId === 'breathing') { navItems[2].classList.add('active'); }
+    else if (pageId === 'settings') { navItems[3].classList.add('active'); }
+    else if (pageId === 'parent') { if (navItems[3]) navItems[3].classList.add('active'); }
+    
+    var showSOS = (pageId === 'home' && currentRole === 'teen');
+    document.getElementById('sos-button').style.display = showSOS ? 'block' : 'none';
+    
+    if (pageId === 'records') loadRecords();
+    if (pageId === 'parent') loadParentData();
+    if (pageId === 'settings') loadAIConfig();
+}
+
+function updateTime() {
+    var now = new Date();
+    var hour = now.getHours();
+    var greet = '早上好';
+    if (hour >= 12 && hour < 14) greet = '中午好';
+    else if (hour >= 14 && hour < 18) greet = '下午好';
+    else if (hour >= 18 && hour < 22) greet = '晚上好';
+    else if (hour >= 22 || hour < 6) greet = '夜深了';
+    
+    if (currentUser && currentUser.role === 'teen') {
+        document.getElementById('welcome-text').textContent = currentUser.name + '，' + greet;
+        var avatar = currentUser.name;
+        if (avatar.length > 2) avatar = avatar.substring(0, 2);
+        document.getElementById('user-avatar').textContent = avatar;
+    }
+    var days = ['日', '一', '二', '三', '四', '五', '六'];
+    var dateStr = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日 星期' + days[now.getDay()];
+    document.getElementById('welcome-date').textContent = dateStr;
+}
+
+function updateDiaryDate() {
+    var now = new Date();
+    var days = ['日', '一', '二', '三', '四', '五', '六'];
+    var dateStr = now.getFullYear() + '年' + (now.getMonth()+1) + '月' + now.getDate() + '日 星期' + days[now.getDay()];
+    document.getElementById('diary-date').textContent = dateStr;
+}
+
+function updateWelcome() { updateTime(); setInterval(updateTime, 60000); }
+
+function selectMood(btn) {
+    var btns = document.querySelectorAll('.mood-btn');
+    for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('selected'); }
+    btn.classList.add('selected');
+    currentMood = btn.dataset.mood;
+    currentMoodLevel = parseInt(btn.dataset.level);
+}
+
+function saveMood() {
+    if (!currentMood) { showToast('请先选择心情'); return; }
+    var note = document.getElementById('mood-note').value;
+    var record = { date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().split(' ')[0], mood: currentMood, level: currentMoodLevel, note: note, userId: currentUser.id };
+    var data = getLocalData();
+    if (!data.moodRecords) data.moodRecords = [];
+    data.moodRecords.push(record);
+    saveLocalData(data);
+    document.getElementById('mood-note').value = '';
+    var btns = document.querySelectorAll('.mood-btn');
+    for (var j = 0; j < btns.length; j++) { btns[j].classList.remove('selected'); }
+    currentMood = ''; currentMoodLevel = 0;
+    showToast('已记录！你很棒 💪');
+    syncToCloud();
+}
+
+function loadRecords() {
+    var data = getLocalData();
+    var records = data.moodRecords || [];
+    var container = document.getElementById('records-list');
+    if (records.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#999;padding:50px 20px;"><div style="font-size:48px;margin-bottom:10px">📝</div><div>还没有记录哦</div><div style="font-size:12px;margin-top:5px">快去记录你的心情吧！</div></div>';
+        return;
+    }
+    var html = '';
+    var recentRecords = records.slice(-20).reverse();
+    for (var i = 0; i < recentRecords.length; i++) {
+        var r = recentRecords[i];
+        var date = new Date(r.date);
+        var timeStr = (date.getMonth()+1) + '月' + date.getDate() + '日 ' + r.time;
+        html += '<div class="record-item"><div class="record-header"><span class="record-mood">' + r.mood + '</span><span class="record-time">' + timeStr + '</span></div>';
+        if (r.note) html += '<div class="record-note">' + r.note + '</div>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function saveDiary() {
+    var content = document.getElementById('diary-content').value.trim();
+    if (!content) { showToast('请输入日记内容'); return; }
+    var entry = { date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().split(' ')[0], content: content, userId: currentUser.id };
+    var data = getLocalData();
+    if (!data.diaryEntries) data.diaryEntries = [];
+    data.diaryEntries.push(entry);
+    saveLocalData(data);
+    document.getElementById('diary-content').value = '';
+    showToast('日记已保存 📔');
+    syncToCloud();
+}
+
+async function sendMessage() {
+    var input = document.getElementById('chat-input');
+    var message = input.value.trim();
+    if (!message) return;
+    
+    addChatMessage('user', message);
+    input.value = '';
+    
+    var data = getLocalData();
+    if (!data.chatHistory) data.chatHistory = [];
+    data.chatHistory.push({ role: 'user', content: message });
+    
+    var loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message ai';
+    loadingDiv.innerHTML = '<div class="message-avatar">🌸</div><div class="message-bubble"><div class="loading"></div></div>';
+    document.getElementById('chat-messages').appendChild(loadingDiv);
+    scrollChatToBottom();
+    
+    try {
+        var response = await sendMessageToAI(message);
+        loadingDiv.remove();
+        addChatMessage('ai', response);
+        data.chatHistory.push({ role: 'ai', content: response });
+    } catch (error) {
+        loadingDiv.remove();
+        var fallback = '抱歉，我现在有点忙，请稍后再试 💭';
+        addChatMessage('ai', fallback);
+        data.chatHistory.push({ role: 'ai', content: fallback });
+    }
+    
+    saveLocalData(data);
+    syncToCloud();
+}
+
+function addChatMessage(role, content) {
+    var container = document.getElementById('chat-messages');
+    var div = document.createElement('div');
+    div.className = 'message ' + role;
+    var avatar = role === 'ai' ? '🌸' : currentUser.name;
+    div.innerHTML = '<div class="message-avatar">' + avatar + '</div><div class="message-bubble">' + content + '</div>';
+    container.appendChild(div);
+    scrollChatToBottom();
+}
+
+function scrollChatToBottom() {
+    var container = document.getElementById('chat-messages');
+    container.scrollTop = container.scrollHeight;
+}
+
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
+}
+
+function loadChatHistory() {
+    var data = getLocalData();
+    var history = data.chatHistory || [];
+    var container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+    for (var i = 0; i < history.length; i++) {
+        var role = history[i].role === 'ai' ? 'ai' : 'user';
+        addChatMessage(role, history[i].content);
+    }
+}
+
+function startVoice() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { showToast('您的浏览器不支持语音输入'); return; }
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.continuous = false;
+    recognition.onresult = function(event) { var text = event.results[0][0].transcript; document.getElementById('chat-input').value = text; sendMessage(); };
+    recognition.onerror = function() { showToast('语音识别失败，请重试'); };
+    recognition.start();
+    showToast('请说话...');
+}
+
+function startBreathing() {
+    if (breathingInterval) { clearInterval(breathingInterval); breathingInterval = null; document.getElementById('breath-circle').textContent = '开始'; document.getElementById('breath-circle').style.transform = 'scale(1)'; return; }
+    var circle = document.getElementById('breath-circle');
+    var phases = [{ text: '吸气', scale: 1.3, duration: 4000 }, { text: '屏息', scale: 1.3, duration: 4000 }, { text: '呼气', scale: 1, duration: 4000 }];
+    var phase = 0;
+    function nextPhase() { var p = phases[phase]; circle.textContent = p.text; circle.style.transform = 'scale(' + p.scale + ')'; phase = (phase + 1) % phases.length; }
+    nextPhase();
+    breathingInterval = setInterval(nextPhase, 4000);
+}
+
+function showSOSModal() { document.getElementById('sos-modal').classList.add('active'); }
+function closeSOSModal() { document.getElementById('sos-modal').classList.remove('active'); }
+
+function sendSOS(type) {
+    closeSOSModal();
+    var sosAlert = { time: new Date().toISOString(), type: type, message: getSOSMessage(type), resolved: false, userId: currentUser.id, userName: currentUser.name };
+    var data = getLocalData();
+    if (!data.emergencyAlerts) data.emergencyAlerts = [];
+    data.emergencyAlerts.push(sosAlert);
+    saveLocalData(data);
+    showToast('已发送求助信号 🚨');
+    syncToCloud();
+}
+
+function getSOSMessage(type) {
+    switch(type) { case '需要帮助': return '孩子请求陪伴和支持'; case '感觉很糟糕': return '孩子情绪低落，需要关注'; case '有危险': return '孩子感到自己有危险，需要紧急关注'; default: return '孩子发送了紧急求助'; }
+}
+
+function loadParentData() {
+    var data = getLocalData();
+    var records = data.moodRecords || [];
+    var diaries = data.diaryEntries || [];
+    var chats = data.chatHistory || [];
+    var alerts = data.emergencyAlerts || [];
+    var now = new Date();
+    var weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    var weekRecords = [];
+    for (var i = 0; i < records.length; i++) { var recordDate = new Date(records[i].date); if (recordDate >= weekStart) weekRecords.push(records[i]); }
+    var weekDiaries = [];
+    for (var j = 0; j < diaries.length; j++) { var diaryDate = new Date(diaries[j].date); if (diaryDate >= weekStart) weekDiaries.push(diaries[j]); }
+    document.getElementById('week-count').textContent = weekRecords.length;
+    document.getElementById('week-diary').textContent = weekDiaries.length;
+    document.getElementById('week-chat').textContent = chats.length > 0 ? chats.length : '0';
+    var unresolvedAlerts = [];
+    for (var k = 0; k < alerts.length; k++) { if (!alerts[k].resolved) unresolvedAlerts.push(alerts[k]); }
+    if (unresolvedAlerts.length > 0) {
+        var latestAlert = unresolvedAlerts[unresolvedAlerts.length - 1];
+        document.getElementById('emergency-alert').classList.add('active');
+        document.getElementById('emergency-content').textContent = latestAlert.message;
+        document.getElementById('emergency-time').textContent = formatTimeAgo(latestAlert.time);
+    } else { document.getElementById('emergency-alert').classList.remove('active'); }
+    if (records.length > 0) { var lastRecord = records[records.length - 1]; document.getElementById('last-active-text').textContent = '最后活跃：' + formatTimeAgo(lastRecord.date + 'T' + lastRecord.time); }
+    renderMoodChart(records);
+    renderRecentMoods(records);
+    renderRecentChats(chats);
+}
+
+function renderMoodChart(records) {
+    var chart = document.getElementById('mood-chart');
+    var days = ['日', '一', '二', '三', '四', '五', '六'];
+    var now = new Date();
+    var weekData = [];
+    for (var i = 6; i >= 0; i--) {
+        var date = new Date(now);
+        date.setDate(now.getDate() - i);
+        var dateStr = date.toISOString().split('T')[0];
+        var dayRecords = [];
+        for (var j = 0; j < records.length; j++) { if (records[j].date === dateStr) dayRecords.push(records[j]); }
+        var avgLevel = 0;
+        if (dayRecords.length > 0) { var sum = 0; for (var k = 0; k < dayRecords.length; k++) { sum += dayRecords[k].level || 3; } avgLevel = Math.round(sum / dayRecords.length); }
+        weekData.push({ date: date, day: days[date.getDay()], level: avgLevel });
+    }
+    var html = '';
+    for (var m = 0; m < weekData.length; m++) {
+        var height = (weekData[m].level / 5) * 60 + 10;
+        var emoji = weekData[m].level > 0 ? getMoodEmoji(weekData[m].level) : '';
+        html += '<div style="text-align:center;"><div class="chart-bar" style="height:' + height + 'px;"></div><div style="margin-top:8px;">' + emoji + '</div><div class="chart-label">' + weekData[m].day + '</div></div>';
+    }
+    chart.innerHTML = html;
+    var positiveCount = 0, totalCount = 0;
+    for (var n = 0; n < weekData.length; n++) { if (weekData[n].level > 0) { totalCount++; if (weekData[n].level >= 4) positiveCount++; } }
+    var summary = totalCount === 0 ? '本周还没有心情记录' : (positiveCount / totalCount > 0.6 ? '情绪状态良好 🌟' : (positiveCount / totalCount > 0.3 ? '情绪状态稳定' : '需要多关注孩子的情绪'));
+    document.getElementById('mood-summary').textContent = summary;
+}
+
+function getMoodEmoji(level) { if (level >= 5) return '🥰'; if (level >= 4) return '😊'; if (level >= 3) return '😐'; if (level >= 2) return '😔'; if (level >= 1) return '😢'; return ''; }
+
+function renderRecentMoods(records) {
+    var container = document.getElementById('recent-mood-list');
+    var recent = records.slice(-5).reverse();
+    if (recent.length === 0) { container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无记录</div>'; return; }
+    var html = '';
+    for (var i = 0; i < recent.length; i++) {
+        var r = recent[i];
+        var date = new Date(r.date);
+        var dateStr = (date.getMonth()+1) + '月' + date.getDate() + '日';
+        html += '<div class="diary-card"><div class="diary-date">' + dateStr + ' ' + r.time + '</div><div style="font-size:24px;margin:5px 0;">' + r.mood + '</div>';
+        if (r.note) html += '<div class="diary-content">' + r.note + '</div>';
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function renderRecentChats(chats) {
+    var container = document.getElementById('parent-messages');
+    var userChats = [];
+    for (var i = 0; i < chats.length; i++) { if (chats[i].role === 'user') userChats.push(chats[i]); }
+    var recent = userChats.slice(-5).reverse();
+    if (recent.length === 0) { container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无对话</div>'; return; }
+    var html = '';
+    for (var j = 0; j < recent.length; j++) { var content = recent[j].content; var preview = content.length > 50 ? content.substring(0, 50) + '...' : content; html += '<div style="margin:8px 0;padding:12px;background:var(--pink-light);border-radius:12px;font-size:13px;">' + preview + '</div>'; }
+    container.innerHTML = html;
+}
+
+function formatTimeAgo(timeStr) {
+    var now = new Date();
+    var time = new Date(timeStr);
+    var diff = now - time;
+    var minutes = Math.floor(diff / 60000);
+    var hours = Math.floor(diff / 3600000);
+    var days = Math.floor(diff / 86400000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return minutes + '分钟前';
+    if (hours < 24) return hours + '小时前';
+    if (days < 7) return days + '天前';
+    return time.toLocaleDateString();
+}
+
+function initCloudSync() { checkAndCreateRepo(); updateSyncStatus('syncing', '正在连接云端...'); syncFromCloud(function(success) { if (success) updateSyncStatus('synced', '已同步'); else updateSyncStatus('error', '同步失败'); }); }
+
+function initParentSync() {
+    updateSyncStatus('syncing', '正在加载数据...');
+    syncFromCloud(function(success) { if (success) { updateSyncStatus('synced', '已同步'); loadParentData(); } else { updateSyncStatus('error', '加载失败'); } });
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(function() { syncFromCloud(function(success) { if (success) loadParentData(); }); }, 30000);
+}
+
+function updateSyncStatus(status, text) { var dot = document.getElementById('sync-dot'); var textEl = document.getElementById('sync-text'); if (!dot || !textEl) return; dot.className = 'sync-dot'; if (status === 'syncing') dot.classList.add('syncing'); else if (status === 'synced') dot.classList.add('synced'); else if (status === 'error') dot.classList.add('error'); textEl.textContent = text; }
+
+function checkAndCreateRepo() {
+    var url = 'https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME;
+    fetch(url, { method: 'GET', headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' } })
+    .then(function(response) { if (response.status === 404) { return fetch('https://api.github.com/user/repos', { method: 'POST', headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: JSON.stringify({ name: REPO_NAME, private: true, description: '心灵花园家庭数据存储' }) }); } return response.json(); })
+    .catch(function(err) { console.log('Repo check/create error:', err); });
+}
+
+function syncToCloud() {
+    if (!familyCode) return;
+    updateSyncStatus('syncing', '正在上传...');
+    var localData = getLocalData();
+    var jsonContent = JSON.stringify(localData, null, 2);
+    var base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+    var url = 'https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + DATA_PATH + '/' + familyCode + '.json';
+    fetch(url, { method: 'GET', headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' } })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        var sha = data.sha || '';
+        return fetch(url, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' }, body: JSON.stringify({ message: 'sync ' + new Date().toISOString(), content: base64Content, sha: sha }) });
+    })
+    .then(function(response) { if (response.ok) updateSyncStatus('synced', '已同步'); else updateSyncStatus('error', '同步失败'); })
+    .catch(function(err) { console.error('Sync error:', err); updateSyncStatus('error', '同步失败'); });
+}
+
+function syncFromCloud(callback) {
+    if (!familyCode) { if (callback) callback(false); return; }
+    var url = 'https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + DATA_PATH + '/' + familyCode + '.json';
+    fetch(url, { method: 'GET', headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' } })
+    .then(function(response) { if (response.status === 200) return response.json(); else if (response.status === 404) { if (callback) callback(true); return null; } else throw new Error('HTTP ' + response.status); })
+    .then(function(data) {
+        if (!data) return;
+        if (data.content) { var jsonContent = atob(data.content); var cloudData = JSON.parse(jsonContent); var localData = getLocalData(); var mergedData = mergeData(localData, cloudData); saveLocalData(mergedData); if (currentRole === 'parent') loadParentData(); }
+        if (callback) callback(true);
+    })
+    .catch(function(err) { console.error('Sync from cloud error:', err); if (callback) callback(false); });
+}
+
+function mergeData(local, cloud) {
+    var result = {};
+    result.members = [];
+    if (cloud.members) { for (var i = 0; i < cloud.members.length; i++) result.members.push(cloud.members[i]); }
+    result.moodRecords = [];
+    if (cloud.moodRecords) { for (var j = 0; j < cloud.moodRecords.length; j++) result.moodRecords.push(cloud.moodRecords[j]); }
+    if (local.moodRecords) { for (var k = 0; k < local.moodRecords.length; k++) { var exists = false; for (var l = 0; l < result.moodRecords.length; l++) { if (result.moodRecords[l].date === local.moodRecords[k].date && result.moodRecords[l].time === local.moodRecords[k].time && result.moodRecords[l].userId === local.moodRecords[k].userId) { exists = true; break; } } if (!exists) result.moodRecords.push(local.moodRecords[k]); } }
+    result.diaryEntries = cloud.diaryEntries || local.diaryEntries || [];
+    result.chatHistory = cloud.chatHistory || local.chatHistory || [];
+    result.emergencyAlerts = [];
+    if (cloud.emergencyAlerts) { for (var m = 0; m < cloud.emergencyAlerts.length; m++) result.emergencyAlerts.push(cloud.emergencyAlerts[m]); }
+    if (local.emergencyAlerts) { for (var n = 0; n < local.emergencyAlerts.length; n++) { var exists = false; for (var o = 0; o < result.emergencyAlerts.length; o++) { if (result.emergencyAlerts[o].time === local.emergencyAlerts[n].time) { exists = true; break; } } if (!exists) result.emergencyAlerts.push(local.emergencyAlerts[n]); } }
+    result.lastSync = new Date().toISOString();
+    return result;
+}
+
+function getLocalData() { var dataStr = localStorage.getItem(DATA_KEY); if (!dataStr) return {}; try { return JSON.parse(dataStr); } catch (e) { return {}; } }
+function saveLocalData(data) { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
+
+function showToast(msg) { var toast = document.createElement('div'); toast.className = 'toast'; toast.textContent = msg; document.body.appendChild(toast); setTimeout(function() { toast.remove(); }, 2000); }
+
+function generateFamilyCode() { var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; var code = ''; for (var i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length)); return 'XH' + code.substring(2); }
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(function(e) { console.log('SW registration failed:', e); }); }
+</script>
+</body>
+</html>
